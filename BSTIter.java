@@ -1,6 +1,6 @@
 class BSTIter {
     static NodeIter root;
-    static int numLevels = 0;
+    public static int numLevels = 0;
 
     public BSTIter() {
         root = new NodeIter();
@@ -33,11 +33,11 @@ class BSTIter {
         }
 
         while (true) {
+            numLevels++;
             if (element < root.value && root.leftChild == null)
             {
                 NodeIter node = new NodeIter(element);
                 root.leftChild = node;
-                numLevels++;
                 break;
             }
             else
@@ -45,17 +45,14 @@ class BSTIter {
                 {
                     NodeIter node = new NodeIter(element);
                     root.rightChild = node;
-                    numLevels++;
                     break;
                 }
 
             // if element < root.value, go left
             if (element < root.value) {
                 root = root.leftChild;
-                numLevels++;
             } else {
                 root = root.rightChild;
-                numLevels++;
             }
         }
     }

@@ -3,19 +3,20 @@ import java.util.ArrayList;
 class AVL
 {
     static Node mainRoot = new Node();
-    static int numLevels = 0;
+    public static int numLevels;
+
     public static void main(String[] args)
     {
         Node root = new Node();
-        insert(mainRoot, 6);
-        insert(mainRoot, 5);
         insert(mainRoot, 4);
-        //insert(root, 13);
-        //insert(root, 12);
-        //insert(root, 2);
-        //insert(root, 4);
-        //insert(root, 5);
-        //insert(root, 6);
+        insert(mainRoot, 3);
+        insert(mainRoot, 5);
+        insert(mainRoot, 7);
+        insert(mainRoot, 6);
+        //insert(mainRoot, 10);
+        //insert(mainRoot, 14);
+        //insert(mainRoot, 25);
+        //insert(mainRoot, 6);
         //inOrder(root);
         //System.out.println();
         //delete(root, 6);
@@ -24,34 +25,33 @@ class AVL
         System.out.println(mainRoot.value + " " + mainRoot.height);
         System.out.println(mainRoot.leftChild.value + " " + mainRoot.leftChild.height);
         System.out.println(mainRoot.rightChild.value + " " + mainRoot.rightChild.height);
-        //System.out.println(root.leftChild.leftChild.value + " " + root.leftChild.leftChild.height);
-        //System.out.println(root.leftChild.rightChild.value + " " + root.leftChild.rightChild.height);
-        //System.out.println(root.rightChild.leftChild.value + " " + root.rightChild.leftChild.height);
-        //System.out.println(root.rightChild.rightChild.value + " " + root.rightChild.rightChild.height);
+        //System.out.println(mainRoot.leftChild.leftChild.value + " " + mainRoot.leftChild.leftChild.height);
+        //System.out.println(mainRoot.leftChild.rightChild.value + " " + mainRoot.leftChild.rightChild.height);
+        System.out.println(mainRoot.rightChild.leftChild.value + " " + mainRoot.rightChild.leftChild.height);
+        System.out.println(mainRoot.rightChild.rightChild.value + " " + mainRoot.rightChild.rightChild.height);
         //System.out.println(root.leftChild.rightChild.leftChild.value + " " + root.leftChild.rightChild.leftChild.height);
         //System.out.println(root.leftChild.rightChild.rightChild.value + " " + root.leftChild.rightChild.rightChild.height);
 
         //System.out.println(root.rightChild.rightChild.leftChild.value + " " + root.rightChild.rightChild.leftChild.height);
     }
 
-    public static void insert(Node root, int element) {
+    public static Node insert(Node root, int element) {
         //If root is null, add to root
-        //System.out.println("INSERT" + element);
+        //System.out.println(element);
         if (root.value == -12345) {
             root.value = element;
             mainRoot = root;
-            return;
+            return mainRoot;
         }
 
         while (true) {
+            numLevels++;
             if (element < root.value) {
                 if (root.leftChild == null) {
                     root.leftChild = new Node(element);
                     root.leftChild.parent = root;
-                    numLevels++;
                     break;
                 }
-                numLevels++;
                 root = root.leftChild;
             }
             else
@@ -59,48 +59,43 @@ class AVL
                 if (root.rightChild == null) {
                     root.rightChild = new Node(element);
                     root.rightChild.parent = root;
-                    numLevels++;
                     break;
                 }
-                numLevels++;
                 root = root.rightChild;
             }
         }
+        findHeight(mainRoot);
 
         while (true) {
             //Go back up from inserted element, to check BF of each parent
             int BF;
+
             if (root.leftChild == null) {
-                root.height = root.rightChild.height + 1;
                 BF = root.rightChild.height * (-1);
             }
             else {
                 if (root.rightChild == null) {
-                    root.height = root.leftChild.height + 1;
                     BF = root.leftChild.height;
                 }
                 else {  //Height is max height of left or right child + 1
                     int leftHeight = root.leftChild.height;
                     int rightHeight = root.rightChild.height;
-
-                    if (leftHeight >= rightHeight) {
-                        root.height = leftHeight + 1;
-                    } else
-                        root.height = rightHeight + 1;
                     BF = leftHeight - rightHeight;
                 }
             }
-            //System.out.println(root.value + "-----" + root.height  + "   " + BF);
+
             if (BF > 1 || BF < -1) {
                 rotations(root, BF);
+                //break;
             }
 
             if (root.parent == null) {
-                break;
+                return mainRoot;
             }
             else
                 root = root.parent;
         }
+        //return mainRoot;
     }
 
     public static void delete(Node root, int element) {
@@ -243,46 +238,33 @@ class AVL
     public static void rotations(Node node, int BalFact) {
         //If BF < 1, check right child. If child is negative, rotate left, else rotate right then left
         //If BF > 1, check left child. If child is positive, rotate right, else rotate left then right
-        //System.out.println(node.value + " + " + BalFact);
-        //System.out.println(node.leftChild.value + " " + node.leftChild.rightChild.value);
+
         if (BalFact < -1) {
             int rightBF;
             if (node.rightChild.leftChild == null) {
                 leftRotate(node);//leftRotation
+                findHeight(mainRoot);
                 return;
             }
             if (node.rightChild.rightChild == null) {
                 rightLeftRotate(node.rightChild);//right then left
+                findHeight(mainRoot);
                 return;
             }
-            /*rightBF = node.rightChild.leftChild.height - node.leftChild.rightChild.height;
-            if (rightBF < 1)
-                leftRotate(node);
-            else {
-                rightRotate(node);
-                leftRotate(node);
-            }*/
         }
         if (BalFact > 1)
         {
             //int leftBF;
-            if (node.leftChild.rightChild == null && node.leftChild.leftChild != null) {
-                //System.out.println("hi");
-                rightRotate(node.leftChild);
+            if (node.leftChild.rightChild == null){
+                rightRotate(node);
+                findHeight(mainRoot);
                 return;
             }
-            if (node.leftChild.leftChild == null && node.leftChild.rightChild != null) {
+            if (node.leftChild.leftChild == null){
                 leftRightRotate(node.leftChild);
+                findHeight(mainRoot);
                 return;
             }
-            //System.out.println(node.value);
-            /*leftBF = node.leftChild.leftChild.height - node.rightChild.rightChild.height;
-            if (leftBF < 1)
-                rightRotate(node);
-            else {
-                leftRotate(node);
-                rightRotate(node);
-            }*/
         }
     }
 
@@ -296,68 +278,62 @@ class AVL
             newRoot.leftChild = node;
             node.parent = newRoot;
             newRoot.parent = null;
-            node.height = node.height-2;
             mainRoot = newRoot;
             //System.out.println("**" + mainRoot.value);
             return;
         }
         Node parent = node.parent;
         Node middle = node.rightChild;
-        //System.out.println("LEFT" + node.value + "---" + parent.value + "---" + middle.value);
+        Node temp = middle.leftChild;
         parent.rightChild = middle;
         middle.parent = parent;
         middle.leftChild = node;
         node.parent = middle;
-        node.rightChild = middle.rightChild;
-        node.height = node.height - 2;
+        node.rightChild = temp;
     }
 
     public static void leftRightRotate(Node node)
     {
+
         //EDGE CASE: rotating on root
         //System.out.println("LR" + node.value);
         if (node.parent.parent == null) {
-            //Right
+            //Left
             Node newRoot = node.rightChild;
             Node parent = node.parent;
+            Node temp = newRoot.leftChild;
             parent.leftChild = newRoot;
             newRoot.parent = parent;
             newRoot.leftChild = node;
             node.parent = newRoot;
-            node.rightChild = null;
-            //Left
-            newRoot.leftChild = parent;
+            node.rightChild = temp;
+            //Right
+            Node temp2 = newRoot.rightChild;
+            newRoot.rightChild = parent;
             parent.parent = newRoot;
             newRoot.parent = null;
-            parent.leftChild = null;
-            newRoot.height = newRoot.height + 1;
-            parent.height = parent.height - 2;
-            node.height = node.height - 1;
+            parent.leftChild = temp2;
             mainRoot = newRoot;
             //System.out.println("*RL*" + mainRoot.value);
             return;
         }
         Node parent = node.parent;
         Node middle = node.rightChild;
-        //System.out.println("LEFTRIGHT" + node.value + "---" + parent.value + "---" + middle.value);
+        Node temp = middle.leftChild;
         parent.leftChild = middle;
         middle.parent = parent;
+        node.rightChild = temp;
         middle.leftChild = node;
         node.parent = middle;
-        node.rightChild = null; ///////////////////////////////////
-        node.height = node.height - 1;
         parent = parent.parent;
         node = node.parent.parent;
-        //System.out.println("LEFTRIGHT" + node.value + "---" + parent.value + "---" + middle.value);
-        //System.out.println(middle.leftChild.value);
-        parent.rightChild = middle;
+        //Left
+        Node temp2 = middle.rightChild;
+        parent.leftChild = middle;
         middle.parent = parent;
         middle.rightChild = node;
         node.parent = middle;
-        node.leftChild = null;
-        node.height = node.height - 2;
-        parent.height = parent.height - 1;
-        middle.height = middle.height + 1;
+        node.leftChild = temp2;
     }
 
     public static void rightRotate(Node node)
@@ -366,24 +342,20 @@ class AVL
         if (node.parent == null) {
             Node newRoot = node.leftChild;
             node.leftChild = newRoot.rightChild;
-            //node.rightChild.parent = node;
             newRoot.rightChild = node;
             node.parent = newRoot;
             newRoot.parent = null;
-            node.height = node.height-2;
             mainRoot = newRoot;
-            //System.out.println("**" + mainRoot.value);
             return;
         }
         Node parent = node.parent;
         Node middle = node.leftChild;
-        //System.out.println("LEFT" + node.value + "---" + parent.value + "---" + middle.value);
+        Node temp = middle.rightChild;
         parent.leftChild = middle;
         middle.parent = parent;
         middle.rightChild = node;
         node.parent = middle;
-        node.leftChild = middle.leftChild;
-        node.height = node.height - 2;
+        node.leftChild = temp;
     }
 
     public static void rightLeftRotate(Node node)
@@ -395,54 +367,72 @@ class AVL
             //Left
             Node newRoot = node.leftChild;
             Node parent = node.parent;
+            Node temp = newRoot.rightChild;
             parent.rightChild = newRoot;
             newRoot.parent = parent;
             newRoot.rightChild = node;
             node.parent = newRoot;
-            node.leftChild = null;
+            node.leftChild = temp;
             //Right
+            Node temp2 = newRoot.leftChild;
             newRoot.leftChild = parent;
             parent.parent = newRoot;
             newRoot.parent = null;
-            parent.rightChild = null;
-            newRoot.height = newRoot.height + 1;
-            parent.height = parent.height - 2;
-            node.height = node.height - 1;
+            parent.rightChild = temp2;
             mainRoot = newRoot;
             //System.out.println("*RL*" + mainRoot.value);
             return;
         }
         Node parent = node.parent;
         Node middle = node.leftChild;
-        //System.out.println("LEFTRIGHT" + node.value + "---" + parent.value + "---" + middle.value);
+        Node temp = middle.rightChild;
         parent.rightChild = middle;
         middle.parent = parent;
+        node.leftChild = temp;
         middle.rightChild = node;
         node.parent = middle;
-        node.leftChild = null; ///////////////////////////////////
-        node.height = node.height - 1;
         parent = parent.parent;
         node = node.parent.parent;
-        //System.out.println("LEFTRIGHT" + node.value + "---" + parent.value + "---" + middle.value);
-        //System.out.println(middle.leftChild.value);
-        parent.leftChild = middle;
+        //Left
+        Node temp2 = middle.leftChild;
+        parent.rightChild = middle;
         middle.parent = parent;
         middle.leftChild = node;
         node.parent = middle;
-        node.rightChild = null;
-        node.height = node.height - 2;
-        parent.height = parent.height - 1;
-        middle.height = middle.height + 1;
+        node.rightChild = temp2;
     }
 
-    public static void inOrder(Node root)
+    public static void findHeight(Node node)
     {
-        if (root == null)
+        if (node == null)
             return;
 
-        inOrder(root.leftChild);
-        System.out.print(root.value + " ");
-        inOrder(root.rightChild);
+        findHeight(node.leftChild);
+        findHeight(node.rightChild);
+
+        if (node.leftChild == null && node.rightChild == null)
+        {
+            node.height = 1;
+            return;
+        }
+        else if (node.leftChild == null)
+        {
+            node.height = node.rightChild.height + 1;
+            return;
+        }
+        else if (node.rightChild == null)
+        {
+            node.height = node.leftChild.height + 1;
+            return;
+        }
+        else {
+            int left = node.leftChild.height;
+            int right = node.rightChild.height;
+            if (left > right)
+                node.height = left + 1;
+            else
+                node.height = right + 1;
+        }
     }
 }
 
