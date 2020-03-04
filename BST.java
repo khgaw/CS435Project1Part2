@@ -7,22 +7,22 @@ class BST {
 
     public static void main(String[] args) {
         BST tree = new BST();
-        insertRec(root, 5);
-        insertRec(root, 7);
+        insertRec(root, 6);
         insertRec(root, 3);
+        insertRec(root, 2);
         insertRec(root, 4);
-        insertRec(root, 1);
-        //deleteRec(root, 7);
+        //insertRec(root, 5);
+        deleteRec(root, 3);
         System.out.println(root.value);
-        System.out.println(root.rightChild.value);
+        //System.out.println(root.rightChild.value);
         System.out.println(root.leftChild.value);
-        System.out.println(root.leftChild.rightChild.value);
+        //System.out.println(root.leftChild.rightChild.value);
         System.out.println(root.leftChild.leftChild.value);
 
-        System.out.println("FindMinRec: " + findMinRec(root).value);
-        System.out.println("FindMaxRec: " + findMaxRec(root).value);
-        System.out.println("Element next after 3: " + findNextRec(root, 3).value);
-        System.out.println("Element next before 5: " + findPrevRec(root, 5).value);
+        //System.out.println("FindMinRec: " + findMinRec(root).value);
+        //System.out.println("FindMaxRec: " + findMaxRec(root).value);
+        //System.out.println("Element next after 3: " + findNextRec(root, 3).value);
+        //System.out.println("Element next before 5: " + findPrevRec(root, 5).value);
     }
 
     public static void insertRec(NodeBST root, int element) {
@@ -64,7 +64,15 @@ class BST {
 
         if (root.leftChild == null && root.rightChild == null)  // If it's a leaf, just delete
         {
-            root.value = -1;
+            if (root.parent.leftChild == root)
+            {
+                root.parent.leftChild = null;
+            }
+            else
+            {
+                root.parent.rightChild = null;
+            }
+            root = null;
             return;
         }
         else
@@ -72,18 +80,32 @@ class BST {
             if ((root.leftChild == null && root.rightChild != null))  // If only one child, move child to root's spot
             {
                 root.parent.rightChild = root.rightChild;
-                root.value = -1;
+                root.rightChild.parent = root.parent;
+                root = null;
                 return;
             }
             if (root.leftChild != null && root.rightChild == null)
             {
                 root.parent.leftChild = root.leftChild;
-                root.value = -1;
+                root.leftChild.parent = root.parent;
+                root = null;
                 return;
             }
         }
         NodeBST next = findNextRec(node, element);
-        root = next;
+
+        if (next.leftChild != null || next.rightChild != null)
+            deleteRec(root, next.value);
+
+        if (root.leftChild == next)
+        {
+            root.leftChild = null;
+        }
+        else
+        {
+            root.rightChild = null;
+        }
+        root.value = next.value;
         next = null;
     }
 
