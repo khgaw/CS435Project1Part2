@@ -8,18 +8,18 @@ public class ConstructingTrees {
           //  System.out.print(element + " ");
         //System.out.println("\n");
 
-        //BST BSTtree = new BST();
-        //NodeBST rootBST = new NodeBST();
+        BST BSTtree = new BST();
+        NodeBST rootBST = new NodeBST();
         AVL AVLtree = new AVL();
         Node rootAVL = new Node();
         BSTIter BSTItertree= new BSTIter();
         NodeIter rootBSTIter = new NodeIter();
-        /*
+/*
         for (int element : arr)
             BSTtree.insertRec(rootBST, element);
         System.out.println("BST tree is done!");
         //System.out.println();
-        */
+*/
         for (int element : arr)
             BSTItertree.insert(rootBSTIter, element);
         //System.out.println("BSTIter tree is done!");

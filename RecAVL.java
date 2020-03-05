@@ -1,54 +1,36 @@
-import java.util.ArrayList;
-import java.util.Stack;
+class RecAVL {
+    static NodeBST root;
 
-class AVL
-{
-    static Node mainRoot = new Node();
-    public static int numLevels = 0;
+    static NodeRec mainRoot = new NodeRec();
 
-    public static void main(String[] args)
-    {
-        Node root = new Node();
-        insert(mainRoot, 4);
-        insert(mainRoot, 3);
-        insert(mainRoot, 5);
-        insert(mainRoot, 7);
-        insert(mainRoot, 6);
-        //insert(mainRoot, 10);
-        //insert(mainRoot, 14);
-        //insert(mainRoot, 25);
-        //insert(mainRoot, 6);
-        //inOrder(root);
-        //System.out.println();
-        //delete(root, 6);
-        //delete(root, 5);
-        //delete(root, 12);
+    public static void main(String[] args) {
+        //NodeRec root = new NodeRec();
+        insertRec(mainRoot, 4);
+        insertRec(mainRoot, 5);
+        insertRec(mainRoot, 6);
+        //insertRec(mainRoot, 7);
+        //insertRec(mainRoot, 6);
+
         System.out.println(mainRoot.value + " " + mainRoot.height);
         System.out.println(mainRoot.leftChild.value + " " + mainRoot.leftChild.height);
         System.out.println(mainRoot.rightChild.value + " " + mainRoot.rightChild.height);
         //System.out.println(mainRoot.leftChild.leftChild.value + " " + mainRoot.leftChild.leftChild.height);
         //System.out.println(mainRoot.leftChild.rightChild.value + " " + mainRoot.leftChild.rightChild.height);
-        System.out.println(mainRoot.rightChild.leftChild.value + " " + mainRoot.rightChild.leftChild.height);
-        System.out.println(mainRoot.rightChild.rightChild.value + " " + mainRoot.rightChild.rightChild.height);
-        //System.out.println(root.leftChild.rightChild.leftChild.value + " " + root.leftChild.rightChild.leftChild.height);
-        //System.out.println(root.leftChild.rightChild.rightChild.value + " " + root.leftChild.rightChild.rightChild.height);
-        //System.out.println(root.rightChild.rightChild.leftChild.value + " " + root.rightChild.rightChild.leftChild.height);
+        //System.out.println(mainRoot.rightChild.leftChild.value + " " + mainRoot.rightChild.leftChild.height);
+        //System.out.println(mainRoot.rightChild.rightChild.value + " " + mainRoot.rightChild.rightChild.height);
     }
 
-    public static Node insert(Node root, int element) {
-        //If root is null, add to root
-        //System.out.println(element);
+    public static void insertRec(NodeRec root, int element) {
+        // Start at root of tree
         if (root.value == -12345) {
             root.value = element;
             mainRoot = root;
-            return mainRoot;
         }
 
         while (true) {
-            numLevels++;
             if (element < root.value) {
                 if (root.leftChild == null) {
-                    root.leftChild = new Node(element);
+                    root.leftChild = new NodeRec(element);
                     root.leftChild.parent = root;
                     break;
                 }
@@ -57,14 +39,14 @@ class AVL
             else
             {
                 if (root.rightChild == null) {
-                    root.rightChild = new Node(element);
+                    root.rightChild = new NodeRec(element);
                     root.rightChild.parent = root;
                     break;
                 }
                 root = root.rightChild;
             }
         }
-        findHeight(mainRoot);
+        findHeightRec(mainRoot);
 
         while (true) {
             //Go back up from inserted element, to check BF of each parent
@@ -90,18 +72,18 @@ class AVL
             }
 
             if (root.parent == null) {
-                return mainRoot;
+                return;
             }
             else
                 root = root.parent;
         }
-        //return mainRoot;
     }
 
-    public static void delete(Node root, int element) {
-        Node node = findNode(root, element);
+    public static void deleteRec(NodeRec root, int element) {
+        // Search for the node
+        NodeRec node = findNodeRec(root, element);
 
-        Node parent = node.parent;
+        NodeRec parent = node.parent;
         if (node.leftChild == null && node.rightChild == null) { // no children
             if (parent.leftChild.value == node.value)
                 parent.leftChild = null;
@@ -128,7 +110,7 @@ class AVL
                 }
                 else // Two children; findNext
                 {
-                    Node next = findNode(root, findNextIter(root, element));
+                    NodeRec next = findNextRec(root, element);
                     //System.out.println(node.value + "**" + next.value);
                     if (node.leftChild.value == next.value) {
                         node.parent.leftChild = next;
@@ -147,108 +129,90 @@ class AVL
                         node = null;
                         return;
                     }
-                    //FINDNEXT is a parent
                 }
             }
         }
     }
 
-    public static int findNextIter(Node root, int element) {
-        int max = findMaxIter(root);
+    public static NodeRec findNextRec(NodeRec root, int element) {
+        NodeRec max = findMaxRec(root);
         // Search for the node with element
-        root = findNode(root, element);
-        if (max == element)
-            return -1;
+        root = findNodeRec(root, element);
+        if (max.value == element)
+            return null;
         if (root.rightChild != null) // Check right child
-            return findMinIter(root.rightChild);
+            return findMinRec(root.rightChild);
         else
-            return findNextParent(root.parent, element).value; //Go up until you find parent that is > element
+            return findNextParentRec(root.parent, element); //Go up until you find parent that is > element
     }
 
-    public static int findPrevIter(Node root, int element) {
+    public static NodeRec findPrevRec(NodeRec root, int element) {
         // Search for the node with element
-        int min = findMinIter(root);
-        root = findNode(root, element);
+        NodeRec min = findMinRec(root);
+        root = findNodeRec(root, element);
 
-        if (min == element)
-            return -1;
+        if (min.value == element)
+            return null;
         if (root.leftChild != null) // Check the left Child then find max
-            return findMaxIter(root.leftChild);
+            return findMaxRec(root.leftChild);
         else
-            return findPrevParent(root.parent, element).value; // If no left children, go up to parent that is < element
+            return findPrevParentRec(root.parent, element); // If no left children, go up to parent that is < element
     }
 
-    public static int findMinIter(Node root) {
-        while (root.leftChild != null) {
-            root = root.leftChild;
-        }
-        return root.value;
+    public static NodeRec findMinRec(NodeRec root) {
+        if (root.leftChild == null)
+            return root;
+        return findMinRec(root.leftChild);
     }
 
-    public static int findMaxIter(Node root) {
-        while (root.rightChild != null) {
-            root = root.rightChild;
-        }
-        return root.value;
+    public static NodeRec findMaxRec(NodeRec root) {
+        if (root.rightChild == null)
+            return root;
+        return findMaxRec(root.rightChild);
     }
 
-    public static Node findNode(Node root, int element)
+    public static NodeRec findNodeRec(NodeRec root, int element)
     {
         if (root.value == element)
             return root;
 
-        while (root.value != element) { // While the element isn't found
-
-            if (root.value == element) // If the value equals element return the node
-                return root;
-
-            if (element < root.value) // If element < value, go left
-            {
-                root = root.leftChild;
-            }
-            else {  // If element > value, go right
-                root = root.rightChild;
-            }
+        if (element < root.value)
+            return findNodeRec(root.leftChild, element);
+        else {
+            return findNodeRec(root.rightChild, element);
         }
-        return root;
     }
 
-    public static Node findNextParent(Node root, int element)
+    public static NodeRec findNextParentRec(NodeRec root, int element)
     {
-        while (root.value < element) {
-            if (root.value > element)
-                return root;
-            else
-                root = root.parent;
-        }
-        return root;
+        if (root.value > element)
+            return root;
+        else
+            return findNextParentRec(root.parent, element);
     }
 
-    public static Node findPrevParent(Node root, int element)
+    public static NodeRec findPrevParentRec(NodeRec root, int element)
     {
-        while (root.value > element) {
-            if (root.value < element)
-                return root;
-            else
-                root = root.parent;
-        }
-        return root;
+        if (root.value < element)
+            return root;
+        else
+            return findNextParentRec(root.parent, element);
     }
 
-    public static void rotations(Node node, int BalFact) {
+    public static void rotations(NodeRec node, int BalFact) {
         //If BF < 1, check right child. If child is negative, rotate left, else rotate right then left
         //If BF > 1, check left child. If child is positive, rotate right, else rotate left then right
 
         if (BalFact < -1) {
             int rightBF;
             if (node.rightChild.leftChild == null) {
-                leftRotate(node);//leftRotation
-                findHeight(mainRoot);
+                leftRotateRec(node);//leftRotation
+                findHeightRec(mainRoot);
                 return;
             }
             if (node.rightChild.rightChild == null) {
-                rightLeftRotate(node.rightChild);//right then left
-                findHeight(mainRoot);
+                rightLeftRotateRec(node.rightChild);//right then left
+                findHeightRec(mainRoot);
                 return;
             }
         }
@@ -256,23 +220,23 @@ class AVL
         {
             //int leftBF;
             if (node.leftChild.rightChild == null){
-                rightRotate(node);
-                findHeight(mainRoot);
+                rightRotateRec(node);
+                findHeightRec(mainRoot);
                 return;
             }
             if (node.leftChild.leftChild == null){
-                leftRightRotate(node.leftChild);
-                findHeight(mainRoot);
+                leftRightRotateRec(node.leftChild);
+                findHeightRec(mainRoot);
                 return;
             }
         }
     }
 
-    public static void leftRotate(Node node)
+    public static void leftRotateRec(NodeRec node)
     {
         //EDGE CASE: rotating on root
         if (node.parent == null) {
-            Node newRoot = node.rightChild;
+            NodeRec newRoot = node.rightChild;
             node.rightChild = newRoot.leftChild;
             //node.rightChild.parent = node;
             newRoot.leftChild = node;
@@ -282,9 +246,9 @@ class AVL
             //System.out.println("**" + mainRoot.value);
             return;
         }
-        Node parent = node.parent;
-        Node middle = node.rightChild;
-        Node temp = middle.leftChild;
+        NodeRec parent = node.parent;
+        NodeRec middle = node.rightChild;
+        NodeRec temp = middle.leftChild;
         parent.rightChild = middle;
         middle.parent = parent;
         middle.leftChild = node;
@@ -292,23 +256,22 @@ class AVL
         node.rightChild = temp;
     }
 
-    public static void leftRightRotate(Node node)
+    public static void leftRightRotateRec(NodeRec node)
     {
-
         //EDGE CASE: rotating on root
         //System.out.println("LR" + node.value);
         if (node.parent.parent == null) {
             //Left
-            Node newRoot = node.rightChild;
-            Node parent = node.parent;
-            Node temp = newRoot.leftChild;
+            NodeRec newRoot = node.rightChild;
+            NodeRec parent = node.parent;
+            NodeRec temp = newRoot.leftChild;
             parent.leftChild = newRoot;
             newRoot.parent = parent;
             newRoot.leftChild = node;
             node.parent = newRoot;
             node.rightChild = temp;
             //Right
-            Node temp2 = newRoot.rightChild;
+            NodeRec temp2 = newRoot.rightChild;
             newRoot.rightChild = parent;
             parent.parent = newRoot;
             newRoot.parent = null;
@@ -317,9 +280,9 @@ class AVL
             //System.out.println("*RL*" + mainRoot.value);
             return;
         }
-        Node parent = node.parent;
-        Node middle = node.rightChild;
-        Node temp = middle.leftChild;
+        NodeRec parent = node.parent;
+        NodeRec middle = node.rightChild;
+        NodeRec temp = middle.leftChild;
         parent.leftChild = middle;
         middle.parent = parent;
         node.rightChild = temp;
@@ -328,7 +291,7 @@ class AVL
         parent = parent.parent;
         node = node.parent.parent;
         //Left
-        Node temp2 = middle.rightChild;
+        NodeRec temp2 = middle.rightChild;
         parent.leftChild = middle;
         middle.parent = parent;
         middle.rightChild = node;
@@ -336,11 +299,11 @@ class AVL
         node.leftChild = temp2;
     }
 
-    public static void rightRotate(Node node)
+    public static void rightRotateRec(NodeRec node)
     {
         //EDGE CASE: rotating on root
         if (node.parent == null) {
-            Node newRoot = node.leftChild;
+            NodeRec newRoot = node.leftChild;
             node.leftChild = newRoot.rightChild;
             newRoot.rightChild = node;
             node.parent = newRoot;
@@ -348,9 +311,9 @@ class AVL
             mainRoot = newRoot;
             return;
         }
-        Node parent = node.parent;
-        Node middle = node.leftChild;
-        Node temp = middle.rightChild;
+        NodeRec parent = node.parent;
+        NodeRec middle = node.leftChild;
+        NodeRec temp = middle.rightChild;
         parent.leftChild = middle;
         middle.parent = parent;
         middle.rightChild = node;
@@ -358,23 +321,23 @@ class AVL
         node.leftChild = temp;
     }
 
-    public static void rightLeftRotate(Node node)
+    public static void rightLeftRotateRec(NodeRec node)
     {
         //EDGE CASE: rotating on root
         //Right Rotation
         //System.out.println("RL" + node.value);
         if (node.parent.parent == null) {
             //Left
-            Node newRoot = node.leftChild;
-            Node parent = node.parent;
-            Node temp = newRoot.rightChild;
+            NodeRec newRoot = node.leftChild;
+            NodeRec parent = node.parent;
+            NodeRec temp = newRoot.rightChild;
             parent.rightChild = newRoot;
             newRoot.parent = parent;
             newRoot.rightChild = node;
             node.parent = newRoot;
             node.leftChild = temp;
             //Right
-            Node temp2 = newRoot.leftChild;
+            NodeRec temp2 = newRoot.leftChild;
             newRoot.leftChild = parent;
             parent.parent = newRoot;
             newRoot.parent = null;
@@ -383,9 +346,9 @@ class AVL
             //System.out.println("*RL*" + mainRoot.value);
             return;
         }
-        Node parent = node.parent;
-        Node middle = node.leftChild;
-        Node temp = middle.rightChild;
+        NodeRec parent = node.parent;
+        NodeRec middle = node.leftChild;
+        NodeRec temp = middle.rightChild;
         parent.rightChild = middle;
         middle.parent = parent;
         node.leftChild = temp;
@@ -394,7 +357,7 @@ class AVL
         parent = parent.parent;
         node = node.parent.parent;
         //Left
-        Node temp2 = middle.leftChild;
+        NodeRec temp2 = middle.leftChild;
         parent.rightChild = middle;
         middle.parent = parent;
         middle.leftChild = node;
@@ -402,72 +365,59 @@ class AVL
         node.rightChild = temp2;
     }
 
-    public static void findHeight(Node node) {
+    public static void findHeightRec(NodeRec node)
+    {
         if (node == null)
             return;
 
-        Stack<Node> nodes = new Stack<Node>();
-        while (true) {
-            if (node != null) {
-                if (node.rightChild != null)
-                    nodes.push(node.rightChild);
-                nodes.push(node);
-                node = node.leftChild;
-                continue;
-            }
+        findHeightRec(node.leftChild);
+        findHeightRec(node.rightChild);
 
-            if (nodes.isEmpty())
-                return;
-
-            node = nodes.pop();
-
-            if (node.rightChild != null && nodes.isEmpty() == false && nodes.peek() == node.rightChild) {
-                nodes.pop();
-                nodes.push(node);
-                node = node.rightChild;
-            } else {
-                //System.out.println(node.value + " ");
-
-                if (node.leftChild == null && node.rightChild == null) {
-                    node.height = 1;
-                } else if (node.leftChild == null) {
-                    node.height = node.rightChild.height + 1;
-                } else if (node.rightChild == null) {
-                    node.height = node.leftChild.height + 1;
-                } else {
-                    int left = node.leftChild.height;
-                    int right = node.rightChild.height;
-                    if (left > right)
-                        node.height = left + 1;
-                    else
-                        node.height = right + 1;
-                }
-                node = null;
-            }
+        if (node.leftChild == null && node.rightChild == null)
+        {
+            node.height = 1;
+            return;
+        }
+        else if (node.leftChild == null)
+        {
+            node.height = node.rightChild.height + 1;
+            return;
+        }
+        else if (node.rightChild == null)
+        {
+            node.height = node.leftChild.height + 1;
+            return;
+        }
+        else {
+            int left = node.leftChild.height;
+            int right = node.rightChild.height;
+            if (left > right)
+                node.height = left + 1;
+            else
+                node.height = right + 1;
         }
     }
 }
 
-class Node {
+class NodeRec {
     int value;
-    Node leftChild;
-    Node rightChild;
-    Node parent;
+    NodeRec leftChild;
+    NodeRec rightChild;
+    NodeRec parent;
     int height;
 
-    public Node() {
+    public NodeRec() {
         value = -12345;
         rightChild = null;
         leftChild = null;
         parent = null;
-        height = 1;
+        height = 0;
     }
 
-    public Node(int value) {
+    public NodeRec(int value) {
         this.value = value;
         rightChild = null;
         leftChild = null;
-        parent = null;
-        height = 1;
+        height = 0;
     }
 }
